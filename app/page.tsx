@@ -1,101 +1,85 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useEffect, useState } from "react"
+import WaterDrop from "@/components/water-drop"
+import { formatTime } from "@/lib/utils"
+
+export default function WaterClock() {
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [drops, setDrops] = useState<{ id: number; left: number }[]>([])
+  const [nextDropId, setNextDropId] = useState(0)
+
+  // Calculate water level based on time of day (0-100%)
+  const getWaterLevel = () => {
+    const hours = currentTime.getHours()
+    const minutes = currentTime.getMinutes()
+    const seconds = currentTime.getSeconds()
+
+    const totalSeconds = hours * 3600 + minutes * 60 + seconds
+    const percentOfDay = (totalSeconds / 86400) * 100
+
+    return percentOfDay
+  }
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  // Create new drops periodically
+  useEffect(() => {
+    const dropInterval = setInterval(() => {
+      const left = Math.random() * 100 // Random position (0-100%)
+      setDrops((prev) => [...prev, { id: nextDropId, left }])
+      setNextDropId((prev) => prev + 1)
+    }, 2000)
+
+    return () => clearInterval(dropInterval)
+  }, [nextDropId])
+
+  const waterLevel = getWaterLevel()
+
+  const handleDropSplash = (id: number) => {
+    // Remove the drop after animation completes
+    setTimeout(() => {
+      setDrops((prev) => prev.filter((drop) => drop.id !== id))
+    }, 1000)
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="relative h-screen w-full overflow-hidden bg-sky-950">
+      {/* Water background */}
+      <div
+        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-500 to-blue-400 transition-all duration-1000"
+        style={{ height: `${waterLevel}%` }}
+      >
+        {/* Water surface effect */}
+        <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-blue-300 to-transparent opacity-50"></div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        {/* Water ripples */}
+        <div className="absolute top-0 left-0 right-0 h-12 overflow-hidden">
+          <div className="water-ripple"></div>
+          <div className="water-ripple delay-300"></div>
+          <div className="water-ripple delay-600"></div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      {/* Water drops */}
+      {drops.map((drop) => (
+        <WaterDrop key={drop.id} id={drop.id} left={drop.left} waterLevel={waterLevel} onSplash={handleDropSplash} />
+      ))}
+
+      {/* Time display */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="rounded-full bg-white/20 p-8 shadow-lg backdrop-blur-sm">
+          <h1 className="text-6xl font-bold text-white drop-shadow-md">{formatTime(currentTime)}</h1>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
+

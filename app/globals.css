@@ -3,25 +3,78 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 10, 20, 30;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Water ripple animation */
+.water-ripple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.3) 20%,
+    rgba(255, 255, 255, 0.1) 40%
+  );
+  background-size: 200% 100%;
+  animation: ripple 8s linear infinite;
+}
+
+.delay-300 {
+  animation-delay: -3s;
+  opacity: 0.7;
+}
+
+.delay-600 {
+  animation-delay: -6s;
+  opacity: 0.5;
+}
+
+@keyframes ripple {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
+
+/* Splash animations */
+@keyframes splash-center {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+@keyframes splash-particle {
+  0% {
+    transform-origin: center;
+    transform: translateY(0) translateX(0) scale(1) rotate(var(--rotation, 0deg));
+    opacity: 1;
+  }
+  100% {
+    transform-origin: center;
+    transform: translateY(-20px) translateX(20px) scale(0) rotate(var(--rotation, 0deg));
+    opacity: 0;
+  }
+}
+
+/* Add animation for the splash particles */
+.animate-splash-center {
+  animation: splash-center 0.5s ease-out forwards;
+}
+
